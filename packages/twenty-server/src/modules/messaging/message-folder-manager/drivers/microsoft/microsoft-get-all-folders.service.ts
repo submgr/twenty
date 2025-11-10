@@ -10,6 +10,7 @@ import {
 import { OAuth2ClientManagerService } from 'src/modules/connected-account/oauth2-client-manager/services/oauth2-client-manager.service';
 import { type ConnectedAccountWorkspaceEntity } from 'src/modules/connected-account/standard-objects/connected-account.workspace-entity';
 import { MessageChannelWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel.workspace-entity';
+import { shouldCreateFolderByDefault } from 'src/modules/messaging/message-folder-manager/utils/should-create-folder-by-default.util';
 import { shouldSyncFolderByDefault } from 'src/modules/messaging/message-folder-manager/utils/should-sync-folder-by-default.util';
 import { MicrosoftMessageListFetchErrorHandler } from 'src/modules/messaging/message-import-manager/drivers/microsoft/services/microsoft-message-list-fetch-error-handler.service';
 import { StandardFolder } from 'src/modules/messaging/message-import-manager/drivers/types/standard-folder';
@@ -76,10 +77,14 @@ export class MicrosoftGetAllFoldersService implements MessageFolderDriver {
         const standardFolder = folder.wellKnownName
           ? getStandardFolderByRegex(folder.wellKnownName)
           : null;
+
+        if (!shouldCreateFolderByDefault(standardFolder)) {
+          continue;
+        }
+
         const isSentFolder = this.isSentFolder(standardFolder);
         const isSynced = shouldSyncFolderByDefault(
           messageChannel.messageFolderImportPolicy,
-          standardFolder,
         );
 
         folderInfos.push({

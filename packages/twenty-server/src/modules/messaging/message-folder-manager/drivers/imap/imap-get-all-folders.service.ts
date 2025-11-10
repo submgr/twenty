@@ -10,6 +10,7 @@ import {
 
 import { type ConnectedAccountWorkspaceEntity } from 'src/modules/connected-account/standard-objects/connected-account.workspace-entity';
 import { MessageChannelWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel.workspace-entity';
+import { shouldCreateFolderByDefault } from 'src/modules/messaging/message-folder-manager/utils/should-create-folder-by-default.util';
 import { shouldSyncFolderByDefault } from 'src/modules/messaging/message-folder-manager/utils/should-sync-folder-by-default.util';
 import { ImapClientProvider } from 'src/modules/messaging/message-import-manager/drivers/imap/providers/imap-client.provider';
 import { ImapFindSentFolderService } from 'src/modules/messaging/message-import-manager/drivers/imap/services/imap-find-sent-folder.service';
@@ -102,9 +103,13 @@ export class ImapGetAllFoldersService implements MessageFolderDriver {
 
       if (this.isValidMailbox(mailbox, folders)) {
         const standardFolder = getStandardFolderByRegex(mailbox.path);
+
+        if (!shouldCreateFolderByDefault(standardFolder)) {
+          continue;
+        }
+
         const isSynced = shouldSyncFolderByDefault(
           messageChannel.messageFolderImportPolicy,
-          standardFolder,
         );
 
         folders.push({

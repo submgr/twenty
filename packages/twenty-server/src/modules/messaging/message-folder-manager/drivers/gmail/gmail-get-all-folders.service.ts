@@ -7,10 +7,7 @@ import {
 
 import { OAuth2ClientManagerService } from 'src/modules/connected-account/oauth2-client-manager/services/oauth2-client-manager.service';
 import { type ConnectedAccountWorkspaceEntity } from 'src/modules/connected-account/standard-objects/connected-account.workspace-entity';
-import {
-  MessageChannelWorkspaceEntity,
-  MessageFolderImportPolicy,
-} from 'src/modules/messaging/common/standard-objects/message-channel.workspace-entity';
+import { MessageChannelWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel.workspace-entity';
 import { extractGmailFolderName } from 'src/modules/messaging/message-folder-manager/drivers/gmail/utils/extract-gmail-folder-name.util';
 import { getGmailFolderParentId } from 'src/modules/messaging/message-folder-manager/drivers/gmail/utils/get-gmail-folder-parent-id.util';
 import { shouldSyncFolderByDefault } from 'src/modules/messaging/message-folder-manager/utils/should-sync-folder-by-default.util';
@@ -25,17 +22,6 @@ export class GmailGetAllFoldersService implements MessageFolderDriver {
     private readonly oAuth2ClientManagerService: OAuth2ClientManagerService,
     private readonly gmailMessageListFetchErrorHandler: GmailMessageListFetchErrorHandler,
   ) {}
-
-  private shouldSyncLabelByDefault(
-    labelId: string,
-    messageFolderImportPolicy: MessageFolderImportPolicy,
-  ): boolean {
-    if (MESSAGING_GMAIL_DEFAULT_NOT_SYNCED_LABELS.includes(labelId)) {
-      return false;
-    }
-
-    return shouldSyncFolderByDefault(messageFolderImportPolicy);
-  }
 
   async getAllMessageFolders(
     connectedAccount: Pick<
@@ -86,15 +72,17 @@ export class GmailGetAllFoldersService implements MessageFolderDriver {
           continue;
         }
 
+        if (MESSAGING_GMAIL_DEFAULT_NOT_SYNCED_LABELS.includes(label.id)) {
+          continue;
+        }
+
         const isSentFolder = label.id === 'SENT';
         const folderName = extractGmailFolderName(label.name);
         const parentFolderId = getGmailFolderParentId(
           label.name,
           labelNameToIdMap,
         );
-
-        const isSynced = this.shouldSyncLabelByDefault(
-          label.id,
+        const isSynced = shouldSyncFolderByDefault(
           messageChannel.messageFolderImportPolicy,
         );
 
