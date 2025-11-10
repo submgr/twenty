@@ -52,7 +52,7 @@ export class MessagingProcessFolderActionsService {
           );
 
         const folderIdsToDelete: string[] = [];
-        const folderIdsToImport: string[] = [];
+
         const processedFolderIds: string[] = [];
         const failedFolderIds: Array<{ folderId: string; error: Error }> = [];
 
@@ -77,15 +77,6 @@ export class MessagingProcessFolderActionsService {
               this.logger.log(
                 `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id}, FolderId: ${folder.id} - Completed FOLDER_DELETION action`,
               );
-            } else if (
-              folder.pendingSyncAction ===
-              MessageFolderPendingSyncAction.FOLDER_IMPORT
-            ) {
-              folderIdsToImport.push(folder.id);
-
-              this.logger.log(
-                `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id}, FolderId: ${folder.id} - Marked for FOLDER_IMPORT action`,
-              );
             }
 
             processedFolderIds.push(folder.id);
@@ -101,18 +92,6 @@ export class MessagingProcessFolderActionsService {
         if (failedFolderIds.length > 0) {
           this.logger.warn(
             `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Failed to process ${failedFolderIds.length} folders. They will be retried on next sync.`,
-          );
-        }
-
-        if (folderIdsToImport.length > 0) {
-          await messageFolderRepository.update(
-            { id: In(folderIdsToImport) },
-            { syncCursor: '' },
-            transactionManager,
-          );
-
-          this.logger.log(
-            `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Cleared sync cursors for ${folderIdsToImport.length} folders to import`,
           );
         }
 
