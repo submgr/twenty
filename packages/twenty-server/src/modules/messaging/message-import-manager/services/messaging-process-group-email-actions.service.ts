@@ -4,6 +4,7 @@ import { isDefined } from 'twenty-shared/utils';
 
 import { type WorkspaceEntityManager } from 'src/engine/twenty-orm/entity-manager/workspace-entity-manager';
 import { TwentyORMManager } from 'src/engine/twenty-orm/twenty-orm.manager';
+import { MessageChannelSyncStatusService } from 'src/modules/messaging/common/services/message-channel-sync-status.service';
 import {
   MessageChannelPendingGroupEmailsAction,
   MessageChannelWorkspaceEntity,
@@ -21,6 +22,7 @@ export class MessagingProcessGroupEmailActionsService {
     private readonly twentyORMManager: TwentyORMManager,
     private readonly messagingDeleteGroupEmailMessagesService: MessagingDeleteGroupEmailMessagesService,
     private readonly messagingClearCursorsService: MessagingClearCursorsService,
+    private readonly messageChannelSyncStatusService: MessageChannelSyncStatusService,
   ) {}
 
   async markMessageChannelAsPendingGroupEmailsAction(
@@ -107,6 +109,14 @@ export class MessagingProcessGroupEmailActionsService {
           throw error;
         }
       },
+    );
+
+    await this.messageChannelSyncStatusService.scheduleMessageListFetch([
+      messageChannel.id,
+    ]);
+
+    this.logger.log(
+      `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Scheduled message list fetch after processing group email action`,
     );
   }
 

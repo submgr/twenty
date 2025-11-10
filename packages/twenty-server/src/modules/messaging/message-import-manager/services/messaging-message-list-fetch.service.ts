@@ -62,10 +62,6 @@ export class MessagingMessageListFetchService {
           `messageChannelId: ${messageChannel.id} Skipping message list fetch due to pending group emails action: ${messageChannel.pendingGroupEmailsAction}`,
         );
 
-        await this.messageChannelSyncStatusService.scheduleMessageListFetch([
-          messageChannel.id,
-        ]);
-
         return;
       }
 
