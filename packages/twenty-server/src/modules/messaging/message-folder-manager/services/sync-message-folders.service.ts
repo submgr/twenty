@@ -23,7 +23,7 @@ type SyncMessageFoldersInput = {
   workspaceId: string;
   messageChannel: Pick<
     MessageChannelWorkspaceEntity,
-    'syncAllFolders' | 'messageFolderImportPolicy' | 'connectedAccount' | 'id'
+    'messageFolderImportPolicy' | 'connectedAccount' | 'id'
   >;
   manager: WorkspaceEntityManager;
 };
@@ -175,7 +175,7 @@ export class SyncMessageFoldersService {
     connectedAccount: MessageChannelWorkspaceEntity['connectedAccount'],
     messageChannel: Pick<
       MessageChannelWorkspaceEntity,
-      'syncAllFolders' | 'messageFolderImportPolicy'
+      'messageFolderImportPolicy'
     >,
   ): Promise<MessageFolder[]> {
     switch (connectedAccount.provider) {

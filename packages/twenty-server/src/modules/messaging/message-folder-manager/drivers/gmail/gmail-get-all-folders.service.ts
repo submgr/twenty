@@ -44,7 +44,7 @@ export class GmailGetAllFoldersService implements MessageFolderDriver {
     >,
     messageChannel: Pick<
       MessageChannelWorkspaceEntity,
-      'syncAllFolders' | 'messageFolderImportPolicy'
+      'messageFolderImportPolicy'
     >,
   ): Promise<MessageFolder[]> {
     try {

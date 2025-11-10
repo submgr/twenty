@@ -31,7 +31,7 @@ export class ImapGetAllFoldersService implements MessageFolderDriver {
     >,
     messageChannel: Pick<
       MessageChannelWorkspaceEntity,
-      'syncAllFolders' | 'messageFolderImportPolicy'
+      'messageFolderImportPolicy'
     >,
   ): Promise<MessageFolder[]> {
     try {
@@ -63,7 +63,7 @@ export class ImapGetAllFoldersService implements MessageFolderDriver {
     mailboxList: ListResponse[],
     messageChannel: Pick<
       MessageChannelWorkspaceEntity,
-      'syncAllFolders' | 'messageFolderImportPolicy'
+      'messageFolderImportPolicy'
     >,
   ): Promise<MessageFolder[]> {
     const folders: MessageFolder[] = [];

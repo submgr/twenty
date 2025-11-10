@@ -20,7 +20,7 @@ export interface MessageFolderDriver {
     >,
     messageChannel: Pick<
       MessageChannelWorkspaceEntity,
-      'syncAllFolders' | 'messageFolderImportPolicy'
+      'messageFolderImportPolicy'
     >,
   ): Promise<MessageFolder[]>;
 }
