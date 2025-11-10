@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 import { ConnectedAccountProvider } from 'twenty-shared/types';
 
-import { type MessageChannelWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel.workspace-entity';
+import {
+  MessageFolderImportPolicy,
+  type MessageChannelWorkspaceEntity,
+} from 'src/modules/messaging/common/standard-objects/message-channel.workspace-entity';
 import { MessageFolderWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-folder.workspace-entity';
 import {
   MessageImportDriverException,
@@ -30,9 +33,11 @@ export class MessagingGetMessageListService {
     messageChannel: MessageChannelWorkspaceEntity,
     messageFolders: MessageFolder[],
   ): Promise<GetMessageListsResponse> {
-    const messageFoldersToSync: MessageFolder[] = messageFolders.filter(
-      (folder) => folder.isSynced,
-    );
+    const messageFoldersToSync: MessageFolder[] =
+      messageChannel.messageFolderImportPolicy ===
+      MessageFolderImportPolicy.ALL_FOLDERS
+        ? messageFolders
+        : messageFolders.filter((folder) => folder.isSynced);
 
     switch (messageChannel.connectedAccount.provider) {
       case ConnectedAccountProvider.GOOGLE:
