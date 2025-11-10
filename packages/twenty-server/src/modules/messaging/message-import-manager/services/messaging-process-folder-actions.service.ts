@@ -129,10 +129,13 @@ export class MessagingProcessFolderActionsService {
         }
 
         if (folderIdsToDelete.length > 0) {
-          await messageFolderRepository.update(
+          await messageFolderRepository.delete(
             { id: In(folderIdsToDelete) },
-            { deletedAt: new Date().toISOString() },
             transactionManager,
+          );
+
+          this.logger.log(
+            `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Deleted ${folderIdsToDelete.length} folders`,
           );
         }
       },

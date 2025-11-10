@@ -23,7 +23,7 @@ type SyncMessageFoldersInput = {
   workspaceId: string;
   messageChannel: Pick<
     MessageChannelWorkspaceEntity,
-    'syncAllFolders' | 'connectedAccount' | 'id'
+    'syncAllFolders' | 'messageFolderImportPolicy' | 'connectedAccount' | 'id'
   >;
   manager: WorkspaceEntityManager;
 };
@@ -119,7 +119,7 @@ export class SyncMessageFoldersService {
         folder,
       );
 
-      if (existingFolder && !isDefined(existingFolder.deletedAt)) {
+      if (existingFolder) {
         updates.push([
           existingFolder.id,
           {
@@ -173,7 +173,10 @@ export class SyncMessageFoldersService {
 
   async discoverAllFolders(
     connectedAccount: MessageChannelWorkspaceEntity['connectedAccount'],
-    messageChannel: Pick<MessageChannelWorkspaceEntity, 'syncAllFolders'>,
+    messageChannel: Pick<
+      MessageChannelWorkspaceEntity,
+      'syncAllFolders' | 'messageFolderImportPolicy'
+    >,
   ): Promise<MessageFolder[]> {
     switch (connectedAccount.provider) {
       case ConnectedAccountProvider.GOOGLE:

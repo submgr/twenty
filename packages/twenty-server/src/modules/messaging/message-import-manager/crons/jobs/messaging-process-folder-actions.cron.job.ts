@@ -52,8 +52,7 @@ export class MessagingProcessFolderActionsCronJob {
           `SELECT DISTINCT mc.id
            FROM ${schemaName}."messageChannel" mc
            INNER JOIN ${schemaName}."messageFolder" mf ON mf."messageChannelId" = mc.id
-           WHERE mf."pendingSyncAction" = '${MessageFolderPendingSyncAction.FOLDER_DELETION}'
-           AND mf."deletedAt" IS NULL`,
+           WHERE mf."pendingSyncAction" = '${MessageFolderPendingSyncAction.FOLDER_DELETION}'`,
         );
 
         for (const messageChannel of messageChannels) {
