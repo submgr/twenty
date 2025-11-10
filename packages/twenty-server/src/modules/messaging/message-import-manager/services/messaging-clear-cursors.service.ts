@@ -11,7 +11,7 @@ export class MessagingClearCursorsService {
 
   constructor(private readonly twentyORMManager: TwentyORMManager) {}
 
-  async clearAllCursors(
+  async clearAllMessageChannelCursors(
     messageChannelId: string,
     transactionManager?: WorkspaceEntityManager,
   ): Promise<void> {
