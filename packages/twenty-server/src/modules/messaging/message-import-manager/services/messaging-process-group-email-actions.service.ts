@@ -130,7 +130,7 @@ export class MessagingProcessGroupEmailActionsService {
       messageChannelId,
     );
 
-    await this.messagingClearCursorsService.clearAllCursors(
+    await this.messagingClearCursorsService.clearAllMessageChannelCursors(
       messageChannelId,
       transactionManager,
     );
@@ -145,7 +145,7 @@ export class MessagingProcessGroupEmailActionsService {
     messageChannelId: string,
     transactionManager: WorkspaceEntityManager,
   ): Promise<void> {
-    await this.messagingClearCursorsService.clearAllCursors(
+    await this.messagingClearCursorsService.clearAllMessageChannelCursors(
       messageChannelId,
       transactionManager,
     );
