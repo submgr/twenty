@@ -112,7 +112,9 @@ export class MessagingDeleteGroupEmailMessagesService {
         break;
       }
 
-      offset += MESSAGE_CHANNEL_MESSAGE_ASSOCIATION_BATCH_SIZE;
+      if (groupEmailRecords.length === 0) {
+        offset += MESSAGE_CHANNEL_MESSAGE_ASSOCIATION_BATCH_SIZE;
+      }
     }
 
     this.logger.log(

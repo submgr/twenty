@@ -42,82 +42,83 @@ export class MessagingProcessFolderActionsService {
       `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Processing ${foldersWithPendingActions.length} folders with pending actions`,
     );
 
-    const workspaceDataSource = await this.twentyORMManager.getDatasource();
+    const folderIdsToDelete: string[] = [];
+    const processedFolderIds: string[] = [];
+    const failedFolderIds: Array<{ folderId: string; error: Error }> = [];
 
-    await workspaceDataSource?.transaction(
-      async (transactionManager: WorkspaceEntityManager) => {
-        const messageFolderRepository =
-          await this.twentyORMManager.getRepository<MessageFolderWorkspaceEntity>(
-            'messageFolder',
+    for (const folder of foldersWithPendingActions) {
+      try {
+        this.logger.log(
+          `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id}, FolderId: ${folder.id} - Processing folder action: ${folder.pendingSyncAction}`,
+        );
+
+        if (
+          folder.pendingSyncAction ===
+          MessageFolderPendingSyncAction.FOLDER_DELETION
+        ) {
+          await this.messagingDeleteFolderMessagesService.deleteFolderMessages(
+            workspaceId,
+            messageChannel,
+            folder,
           );
 
-        const folderIdsToDelete: string[] = [];
+          folderIdsToDelete.push(folder.id);
 
-        const processedFolderIds: string[] = [];
-        const failedFolderIds: Array<{ folderId: string; error: Error }> = [];
+          this.logger.log(
+            `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id}, FolderId: ${folder.id} - Completed FOLDER_DELETION action`,
+          );
+        }
 
-        for (const folder of foldersWithPendingActions) {
-          try {
+        processedFolderIds.push(folder.id);
+      } catch (error) {
+        this.logger.error(
+          `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id}, FolderId: ${folder.id} - Error processing folder action: ${error.message}`,
+          error.stack,
+        );
+        failedFolderIds.push({ folderId: folder.id, error });
+      }
+    }
+
+    if (failedFolderIds.length > 0) {
+      this.logger.warn(
+        `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Failed to process ${failedFolderIds.length} folders. They will be retried on next sync.`,
+      );
+    }
+
+    if (processedFolderIds.length > 0 || folderIdsToDelete.length > 0) {
+      const workspaceDataSource = await this.twentyORMManager.getDatasource();
+
+      await workspaceDataSource?.transaction(
+        async (transactionManager: WorkspaceEntityManager) => {
+          const messageFolderRepository =
+            await this.twentyORMManager.getRepository<MessageFolderWorkspaceEntity>(
+              'messageFolder',
+            );
+
+          if (processedFolderIds.length > 0) {
+            await messageFolderRepository.update(
+              { id: In(processedFolderIds) },
+              { pendingSyncAction: MessageFolderPendingSyncAction.NONE },
+              transactionManager,
+            );
+
             this.logger.log(
-              `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id}, FolderId: ${folder.id} - Processing folder action: ${folder.pendingSyncAction}`,
+              `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Reset pendingSyncAction to NONE for ${processedFolderIds.length} folders`,
             );
-
-            if (
-              folder.pendingSyncAction ===
-              MessageFolderPendingSyncAction.FOLDER_DELETION
-            ) {
-              await this.messagingDeleteFolderMessagesService.deleteFolderMessages(
-                workspaceId,
-                messageChannel,
-                folder,
-              );
-
-              folderIdsToDelete.push(folder.id);
-
-              this.logger.log(
-                `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id}, FolderId: ${folder.id} - Completed FOLDER_DELETION action`,
-              );
-            }
-
-            processedFolderIds.push(folder.id);
-          } catch (error) {
-            this.logger.error(
-              `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id}, FolderId: ${folder.id} - Error processing folder action: ${error.message}`,
-              error.stack,
-            );
-            failedFolderIds.push({ folderId: folder.id, error });
           }
-        }
 
-        if (failedFolderIds.length > 0) {
-          this.logger.warn(
-            `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Failed to process ${failedFolderIds.length} folders. They will be retried on next sync.`,
-          );
-        }
+          if (folderIdsToDelete.length > 0) {
+            await messageFolderRepository.delete(
+              { id: In(folderIdsToDelete) },
+              transactionManager,
+            );
 
-        if (processedFolderIds.length > 0) {
-          await messageFolderRepository.update(
-            { id: In(processedFolderIds) },
-            { pendingSyncAction: MessageFolderPendingSyncAction.NONE },
-            transactionManager,
-          );
-
-          this.logger.log(
-            `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Reset pendingSyncAction to NONE for ${processedFolderIds.length} folders`,
-          );
-        }
-
-        if (folderIdsToDelete.length > 0) {
-          await messageFolderRepository.delete(
-            { id: In(folderIdsToDelete) },
-            transactionManager,
-          );
-
-          this.logger.log(
-            `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Deleted ${folderIdsToDelete.length} folders`,
-          );
-        }
-      },
-    );
+            this.logger.log(
+              `WorkspaceId: ${workspaceId}, MessageChannelId: ${messageChannel.id} - Deleted ${folderIdsToDelete.length} folders`,
+            );
+          }
+        },
+      );
+    }
   }
 }
