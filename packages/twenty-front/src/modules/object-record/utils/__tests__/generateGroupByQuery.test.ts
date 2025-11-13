@@ -1,5 +1,5 @@
 import { type ObjectMetadataItem } from '@/object-metadata/types/ObjectMetadataItem';
-import { generateGroupByQuery } from '../generateGroupByQuery';
+import { generateGroupByAggregateQuery } from '../generateGroupByAggregateQuery';
 
 describe('generateGroupByQuery', () => {
   const testCases = [
@@ -36,7 +36,7 @@ describe('generateGroupByQuery', () => {
   it.each(testCases)(
     'should generate valid GraphQL query for $description',
     ({ objectMetadataItem, aggregateOperations }) => {
-      const result = generateGroupByQuery({
+      const result = generateGroupByAggregateQuery({
         objectMetadataItem: objectMetadataItem as ObjectMetadataItem,
         aggregateOperations,
       });

@@ -2,9 +2,9 @@ import gql from 'graphql-tag';
 
 import { type ObjectMetadataItem } from '@/object-metadata/types/ObjectMetadataItem';
 import { capitalize } from 'twenty-shared/utils';
-import { getGroupByQueryName } from '../../../utils/getGroupByQueryName';
+import { getGroupByQueryName } from '../../page-layout/utils/getGroupByQueryName';
 
-export const generateGroupByQuery = ({
+export const generateGroupByAggregateQuery = ({
   objectMetadataItem,
   aggregateOperations,
 }: {
