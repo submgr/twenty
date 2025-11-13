@@ -33,6 +33,5 @@ export const useAggregateRecordsForRecordBoardColumn = () => {
   return useAggregateRecordsForHeader({
     objectMetadataItem,
     additionalFilters,
-    fallbackFieldName: kanbanFieldName,
   });
 };

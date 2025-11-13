@@ -21,7 +21,6 @@ import { dateLocaleState } from '~/localization/states/dateLocaleState';
 type UseAggregateRecordsProps = {
   objectMetadataItem: ObjectMetadataItem;
   additionalFilters?: Record<string, unknown>;
-  fallbackFieldName: string;
 };
 
 export const useAggregateRecordsForHeader = ({

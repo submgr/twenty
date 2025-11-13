@@ -51,6 +51,7 @@ export const computeAggregateValueAndLabel = ({
     formatNumberFn ??
     ((v: number, opts?: Omit<FormatNumberOptions, 'format'>) =>
       utilFormatNumber(v, opts));
+
   if (isEmpty(data)) {
     return {};
   }
