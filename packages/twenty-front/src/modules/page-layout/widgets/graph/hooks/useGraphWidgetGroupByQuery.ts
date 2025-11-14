@@ -1,5 +1,5 @@
 import { useApolloCoreClient } from '@/object-metadata/hooks/useApolloCoreClient';
-import { generateGroupByAggregateQuery } from '@/object-record/utils/generateGroupByAggregateQuery';
+import { generateGroupByAggregateQuery } from '@/object-record/record-aggregate/utils/generateGroupByAggregateQuery';
 import { getAvailableAggregationsFromObjectFields } from '@/object-record/utils/getAvailableAggregationsFromObjectFields';
 import { useGraphWidgetQueryCommon } from '@/page-layout/widgets/graph/hooks/useGraphWidgetQueryCommon';
 import { type GroupByChartConfiguration } from '@/page-layout/widgets/graph/types/GroupByChartConfiguration';
@@ -56,7 +56,7 @@ export const useGraphWidgetGroupByQuery = ({
 
   const groupByAggregateQuery = generateGroupByAggregateQuery({
     objectMetadataItem,
-    aggregateOperations: [aggregateOperation],
+    aggregateOperationGqlFields: [aggregateOperation],
   });
 
   const apolloCoreClient = useApolloCoreClient();

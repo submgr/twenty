@@ -1,5 +1,5 @@
 import { type ObjectMetadataItem } from '@/object-metadata/types/ObjectMetadataItem';
-import { generateGroupByAggregateQuery } from '../generateGroupByAggregateQuery';
+import { generateGroupByAggregateQuery } from '../../record-aggregate/utils/generateGroupByAggregateQuery';
 
 describe('generateGroupByQuery', () => {
   const testCases = [
@@ -38,7 +38,7 @@ describe('generateGroupByQuery', () => {
     ({ objectMetadataItem, aggregateOperations }) => {
       const result = generateGroupByAggregateQuery({
         objectMetadataItem: objectMetadataItem as ObjectMetadataItem,
-        aggregateOperations,
+        aggregateOperationGqlFields: aggregateOperations,
       });
 
       expect(result.loc?.source.body).toMatchSnapshot();

@@ -17,7 +17,7 @@ import { PageLayoutContentProvider } from '@/page-layout/contexts/PageLayoutCont
 import { pageLayoutPersistedComponentState } from '@/page-layout/states/pageLayoutPersistedComponentState';
 import { WidgetRenderer } from '@/page-layout/widgets/components/WidgetRenderer';
 
-import { generateGroupByAggregateQuery } from '@/object-record/utils/generateGroupByAggregateQuery';
+import { generateGroupByAggregateQuery } from '@/object-record/record-aggregate/utils/generateGroupByAggregateQuery';
 import {
   PAGE_LAYOUT_TEST_INSTANCE_ID,
   PageLayoutTestWrapper,
@@ -53,7 +53,7 @@ const createdAtField = getMockFieldMetadataItemOrThrow({
 
 const barChartGroupByQuery = generateGroupByAggregateQuery({
   objectMetadataItem: companyObjectMetadataItem,
-  aggregateOperations: ['totalCount'],
+  aggregateOperationGqlFields: ['totalCount'],
 });
 
 const graphqlMocks: MockedResponse[] = [

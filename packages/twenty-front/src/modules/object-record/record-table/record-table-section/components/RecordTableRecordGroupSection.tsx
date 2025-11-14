@@ -18,7 +18,8 @@ import { RecordTableGroupSectionLastDynamicFillingCell } from '@/object-record/r
 import { RECORD_TABLE_COLUMN_CHECKBOX_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnCheckboxWidth';
 import { RECORD_TABLE_COLUMN_MIN_WIDTH } from '@/object-record/record-table/constants/RecordTableColumnMinWidth';
 import { RECORD_TABLE_LABEL_IDENTIFIER_COLUMN_WIDTH_ON_MOBILE } from '@/object-record/record-table/constants/RecordTableLabelIdentifierColumnWidthOnMobile';
-import { useAggregateRecordsForRecordTableSection } from '@/object-record/record-table/record-table-section/hooks/useAggregateRecordsForRecordTableSection';
+
+import { useAggregateDisplayForRecordIndexGroup } from '@/object-record/record-index-group/hooks/useAggregateDisplayForRecordIndexGroup';
 import { isRecordGroupTableSectionToggledComponentState } from '@/object-record/record-table/record-table-section/states/isRecordGroupTableSectionToggledComponentState';
 import { useRecoilComponentFamilyState } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentFamilyState';
 import { useRecoilComponentValue } from '@/ui/utilities/state/component-state/hooks/useRecoilComponentValue';
@@ -117,7 +118,7 @@ export const RecordTableRecordGroupSection = () => {
   const { objectMetadataItem } = useRecordTableContextOrThrow();
 
   const { aggregateValue, aggregateLabel } =
-    useAggregateRecordsForRecordTableSection();
+    useAggregateDisplayForRecordIndexGroup();
 
   const { labelIdentifierFieldMetadataItem } = useRecordIndexContextOrThrow();
 

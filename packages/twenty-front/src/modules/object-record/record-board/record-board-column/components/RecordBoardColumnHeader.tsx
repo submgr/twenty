@@ -6,9 +6,9 @@ import { RecordBoardContext } from '@/object-record/record-board/contexts/Record
 import { RecordBoardColumnDropdownMenu } from '@/object-record/record-board/record-board-column/components/RecordBoardColumnDropdownMenu';
 import { RecordBoardColumnHeaderAggregateDropdown } from '@/object-record/record-board/record-board-column/components/RecordBoardColumnHeaderAggregateDropdown';
 import { RecordBoardColumnContext } from '@/object-record/record-board/record-board-column/contexts/RecordBoardColumnContext';
-import { useAggregateRecordsForRecordBoardColumn } from '@/object-record/record-board/record-board-column/hooks/useAggregateRecordsForRecordBoardColumn';
 import { hasAnySoftDeleteFilterOnViewComponentSelector } from '@/object-record/record-filter/states/hasAnySoftDeleteFilterOnView';
 import { RecordGroupDefinitionType } from '@/object-record/record-group/types/RecordGroupDefinition';
+import { useAggregateDisplayForRecordIndexGroup } from '@/object-record/record-index-group/hooks/useAggregateDisplayForRecordIndexGroup';
 import { useCreateNewIndexRecord } from '@/object-record/record-table/hooks/useCreateNewIndexRecord';
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
 import { useToggleDropdown } from '@/ui/layout/dropdown/hooks/useToggleDropdown';
@@ -68,13 +68,14 @@ const StyledTag = styled(Tag)`
 
 export const RecordBoardColumnHeader = () => {
   const { columnDefinition } = useContext(RecordBoardColumnContext);
+
   const [isHeaderHovered, setIsHeaderHovered] = useState(false);
 
   const { objectMetadataItem, selectFieldMetadataItem } =
     useContext(RecordBoardContext);
 
   const { aggregateValue, aggregateLabel } =
-    useAggregateRecordsForRecordBoardColumn();
+    useAggregateDisplayForRecordIndexGroup();
 
   const objectPermissions = useObjectPermissionsForObject(
     objectMetadataItem.id,
@@ -133,10 +134,10 @@ export const RecordBoardColumnHeader = () => {
             />
 
             <RecordBoardColumnHeaderAggregateDropdown
-              aggregateValue={aggregateValue}
+              aggregateValue={aggregateValue ?? ''}
               dropdownId={`record-board-column-aggregate-dropdown-${columnDefinition.id}`}
               objectMetadataItem={objectMetadataItem}
-              aggregateLabel={aggregateLabel}
+              aggregateLabel={aggregateLabel ?? ''}
             />
           </StyledLeftContainer>
           <StyledRightContainer>
