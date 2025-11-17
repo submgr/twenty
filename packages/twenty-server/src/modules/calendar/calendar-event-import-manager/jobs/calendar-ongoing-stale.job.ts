@@ -39,13 +39,15 @@ export class CalendarOngoingStaleJob {
         syncStage: In([
           CalendarChannelSyncStage.CALENDAR_EVENTS_IMPORT_ONGOING,
           CalendarChannelSyncStage.CALENDAR_EVENT_LIST_FETCH_ONGOING,
+          CalendarChannelSyncStage.CALENDAR_EVENTS_IMPORT_SCHEDULED,
+          CalendarChannelSyncStage.CALENDAR_EVENT_LIST_FETCH_SCHEDULED,
         ]),
       },
     });
 
     for (const calendarChannel of calendarChannels) {
       if (
-        calendarChannel.syncStageStartedAt &&
+        !calendarChannel.syncStageStartedAt ||
         isSyncStale(calendarChannel.syncStageStartedAt)
       ) {
         await this.calendarChannelSyncStatusService.resetSyncStageStartedAt([
@@ -54,11 +56,13 @@ export class CalendarOngoingStaleJob {
 
         switch (calendarChannel.syncStage) {
           case CalendarChannelSyncStage.CALENDAR_EVENT_LIST_FETCH_ONGOING:
+          case CalendarChannelSyncStage.CALENDAR_EVENT_LIST_FETCH_SCHEDULED:
             await this.calendarChannelSyncStatusService.scheduleCalendarEventListFetch(
               [calendarChannel.id],
             );
             break;
           case CalendarChannelSyncStage.CALENDAR_EVENTS_IMPORT_ONGOING:
+          case CalendarChannelSyncStage.CALENDAR_EVENTS_IMPORT_SCHEDULED:
             await this.calendarChannelSyncStatusService.scheduleCalendarEventsImport(
               [calendarChannel.id],
             );

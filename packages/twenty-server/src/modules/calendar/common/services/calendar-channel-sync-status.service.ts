@@ -42,6 +42,24 @@ export class CalendarChannelSyncStatusService {
     });
   }
 
+  public async markAsCalendarEventListFetchScheduled(
+    calendarChannelIds: string[],
+  ) {
+    if (!calendarChannelIds.length) {
+      return;
+    }
+
+    const calendarChannelRepository =
+      await this.twentyORMManager.getRepository<CalendarChannelWorkspaceEntity>(
+        'calendarChannel',
+      );
+
+    await calendarChannelRepository.update(calendarChannelIds, {
+      syncStage: CalendarChannelSyncStage.CALENDAR_EVENT_LIST_FETCH_SCHEDULED,
+      syncStageStartedAt: new Date().toISOString(),
+    });
+  }
+
   public async markAsCalendarEventListFetchOngoing(
     calendarChannelIds: string[],
   ) {
@@ -116,6 +134,24 @@ export class CalendarChannelSyncStatusService {
 
     await calendarChannelRepository.update(calendarChannelIds, {
       syncStage: CalendarChannelSyncStage.CALENDAR_EVENTS_IMPORT_PENDING,
+    });
+  }
+
+  public async markAsCalendarEventsImportScheduled(
+    calendarChannelIds: string[],
+  ) {
+    if (!calendarChannelIds.length) {
+      return;
+    }
+
+    const calendarChannelRepository =
+      await this.twentyORMManager.getRepository<CalendarChannelWorkspaceEntity>(
+        'calendarChannel',
+      );
+
+    await calendarChannelRepository.update(calendarChannelIds, {
+      syncStage: CalendarChannelSyncStage.CALENDAR_EVENTS_IMPORT_SCHEDULED,
+      syncStageStartedAt: new Date().toISOString(),
     });
   }
 

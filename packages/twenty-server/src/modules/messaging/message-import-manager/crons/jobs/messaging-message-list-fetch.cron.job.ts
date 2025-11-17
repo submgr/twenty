@@ -52,14 +52,25 @@ export class MessagingMessageListFetchCronJob {
           `SELECT * FROM ${schemaName}."messageChannel" WHERE "isSyncEnabled" = true AND "syncStage" IN ('${MessageChannelSyncStage.MESSAGE_LIST_FETCH_PENDING}')`,
         );
 
-        for (const messageChannel of messageChannels) {
-          await this.messageQueueService.add<MessagingMessageListFetchJobData>(
-            MessagingMessageListFetchJob.name,
-            {
-              workspaceId: activeWorkspace.id,
-              messageChannelId: messageChannel.id,
-            },
+        if (messageChannels.length > 0) {
+          const messageChannelIds = messageChannels.map(
+            (channel: { id: string }) => channel.id,
           );
+
+          await this.coreDataSource.query(
+            `UPDATE ${schemaName}."messageChannel" SET "syncStage" = '${MessageChannelSyncStage.MESSAGE_LIST_FETCH_SCHEDULED}' WHERE "id" = ANY($1)`,
+            [messageChannelIds],
+          );
+
+          for (const messageChannel of messageChannels) {
+            await this.messageQueueService.add<MessagingMessageListFetchJobData>(
+              MessagingMessageListFetchJob.name,
+              {
+                workspaceId: activeWorkspace.id,
+                messageChannelId: messageChannel.id,
+              },
+            );
+          }
         }
       } catch (error) {
         this.exceptionHandlerService.captureExceptions([error], {

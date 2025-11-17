@@ -77,6 +77,7 @@ export class MessagingMessageListFetchJob {
 
       switch (messageChannel.syncStage) {
         case MessageChannelSyncStage.MESSAGE_LIST_FETCH_PENDING:
+        case MessageChannelSyncStage.MESSAGE_LIST_FETCH_SCHEDULED:
           await this.messagingMonitoringService.track({
             eventName: 'message_list_fetch.started',
             workspaceId,

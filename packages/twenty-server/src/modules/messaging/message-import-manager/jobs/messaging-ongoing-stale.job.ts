@@ -42,17 +42,19 @@ export class MessagingOngoingStaleJob {
         syncStage: In([
           MessageChannelSyncStage.MESSAGES_IMPORT_ONGOING,
           MessageChannelSyncStage.MESSAGE_LIST_FETCH_ONGOING,
+          MessageChannelSyncStage.MESSAGES_IMPORT_SCHEDULED,
+          MessageChannelSyncStage.MESSAGE_LIST_FETCH_SCHEDULED,
         ]),
       },
     });
 
     for (const messageChannel of messageChannels) {
       if (
-        messageChannel.syncStageStartedAt &&
+        !messageChannel.syncStageStartedAt ||
         isSyncStale(messageChannel.syncStageStartedAt)
       ) {
         this.logger.log(
-          `Sync for message channel ${messageChannel.id} and workspace ${workspaceId} is stale. Setting sync stage to MESSAGES_IMPORT_PENDING`,
+          `Sync for message channel ${messageChannel.id} and workspace ${workspaceId} is stale. Resetting to PENDING stage`,
         );
 
         await this.messageChannelSyncStatusService.resetSyncStageStartedAt([
@@ -61,11 +63,13 @@ export class MessagingOngoingStaleJob {
 
         switch (messageChannel.syncStage) {
           case MessageChannelSyncStage.MESSAGE_LIST_FETCH_ONGOING:
+          case MessageChannelSyncStage.MESSAGE_LIST_FETCH_SCHEDULED:
             await this.messageChannelSyncStatusService.scheduleMessageListFetch(
               [messageChannel.id],
             );
             break;
           case MessageChannelSyncStage.MESSAGES_IMPORT_ONGOING:
+          case MessageChannelSyncStage.MESSAGES_IMPORT_SCHEDULED:
             await this.messageChannelSyncStatusService.scheduleMessagesImport([
               messageChannel.id,
             ]);

@@ -54,14 +54,25 @@ export class CalendarEventListFetchCronJob {
           `SELECT * FROM ${schemaName}."calendarChannel" WHERE "isSyncEnabled" = true AND "syncStage" IN ('${CalendarChannelSyncStage.CALENDAR_EVENT_LIST_FETCH_PENDING}')`,
         );
 
-        for (const calendarChannel of calendarChannels) {
-          await this.messageQueueService.add<CalendarEventListFetchJobData>(
-            CalendarEventListFetchJob.name,
-            {
-              calendarChannelId: calendarChannel.id,
-              workspaceId: activeWorkspace.id,
-            },
+        if (calendarChannels.length > 0) {
+          const calendarChannelIds = calendarChannels.map(
+            (channel: { id: string }) => channel.id,
           );
+
+          await this.coreDataSource.query(
+            `UPDATE ${schemaName}."calendarChannel" SET "syncStage" = '${CalendarChannelSyncStage.CALENDAR_EVENT_LIST_FETCH_SCHEDULED}' WHERE "id" = ANY($1)`,
+            [calendarChannelIds],
+          );
+
+          for (const calendarChannel of calendarChannels) {
+            await this.messageQueueService.add<CalendarEventListFetchJobData>(
+              CalendarEventListFetchJob.name,
+              {
+                calendarChannelId: calendarChannel.id,
+                workspaceId: activeWorkspace.id,
+              },
+            );
+          }
         }
       } catch (error) {
         this.exceptionHandlerService.captureExceptions([error], {

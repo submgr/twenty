@@ -57,14 +57,25 @@ export class MessagingMessagesImportCronJob {
           `SELECT * FROM ${schemaName}."messageChannel" WHERE "isSyncEnabled" = true AND "syncStage" = '${MessageChannelSyncStage.MESSAGES_IMPORT_PENDING}'`,
         );
 
-        for (const messageChannel of messageChannels) {
-          await this.messageQueueService.add<MessagingMessagesImportJobData>(
-            MessagingMessagesImportJob.name,
-            {
-              workspaceId: activeWorkspace.id,
-              messageChannelId: messageChannel.id,
-            },
+        if (messageChannels.length > 0) {
+          const messageChannelIds = messageChannels.map(
+            (channel: { id: string }) => channel.id,
           );
+
+          await this.coreDataSource.query(
+            `UPDATE ${schemaName}."messageChannel" SET "syncStage" = '${MessageChannelSyncStage.MESSAGES_IMPORT_SCHEDULED}' WHERE "id" = ANY($1)`,
+            [messageChannelIds],
+          );
+
+          for (const messageChannel of messageChannels) {
+            await this.messageQueueService.add<MessagingMessagesImportJobData>(
+              MessagingMessagesImportJob.name,
+              {
+                workspaceId: activeWorkspace.id,
+                messageChannelId: messageChannel.id,
+              },
+            );
+          }
         }
       } catch (error) {
         // We had issues with the workspace schema not being found, due

@@ -57,6 +57,38 @@ export class MessageChannelSyncStatusService {
     });
   }
 
+  public async markAsMessageListFetchScheduled(messageChannelIds: string[]) {
+    if (!messageChannelIds.length) {
+      return;
+    }
+
+    const messageChannelRepository =
+      await this.twentyORMManager.getRepository<MessageChannelWorkspaceEntity>(
+        'messageChannel',
+      );
+
+    await messageChannelRepository.update(messageChannelIds, {
+      syncStage: MessageChannelSyncStage.MESSAGE_LIST_FETCH_SCHEDULED,
+      syncStageStartedAt: new Date().toISOString(),
+    });
+  }
+
+  public async markAsMessagesImportScheduled(messageChannelIds: string[]) {
+    if (!messageChannelIds.length) {
+      return;
+    }
+
+    const messageChannelRepository =
+      await this.twentyORMManager.getRepository<MessageChannelWorkspaceEntity>(
+        'messageChannel',
+      );
+
+    await messageChannelRepository.update(messageChannelIds, {
+      syncStage: MessageChannelSyncStage.MESSAGES_IMPORT_SCHEDULED,
+      syncStageStartedAt: new Date().toISOString(),
+    });
+  }
+
   public async resetAndScheduleMessageListFetch(
     messageChannelIds: string[],
     workspaceId: string,
